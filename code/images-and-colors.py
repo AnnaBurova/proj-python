@@ -2,12 +2,12 @@
 from PIL import Image
 import numpy as np
 import cv2
+import os
 
 # Load the uploaded image
 image_path = "images-and-colors.png"
 
 # Check if the image exists
-import os
 assert os.path.exists(image_path), "Image file not found!"
 
 # Load the image using Pillow
@@ -59,19 +59,23 @@ green_mask = cv2.inRange(hsv_image, green_lower, green_upper)
 white_mask = cv2.inRange(hsv_image, white_lower, white_upper)
 
 # Count the cyan squares
-cyan_contours, _ = cv2.findContours(cyan_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+cyan_contours, _ = cv2.findContours(
+    cyan_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 cyan_count = len(cyan_contours)
 
 # Count the purple squares
-purple_contours, _ = cv2.findContours(purple_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+purple_contours, _ = cv2.findContours(
+    purple_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 purple_count = len(purple_contours)
 
 # Count the green squares
-green_contours, _ = cv2.findContours(green_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+green_contours, _ = cv2.findContours(
+    green_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 green_count = len(green_contours)
 
 # Count the white squares
-white_contours, _ = cv2.findContours(white_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+white_contours, _ = cv2.findContours(
+    white_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 white_count = len(white_contours)
 
 # Print the results
