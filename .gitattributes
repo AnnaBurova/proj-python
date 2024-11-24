@@ -1,0 +1,201 @@
+## GITATTRIBUTES FOR WEB PROJECTS ############################################################### ##
+
+# Details per file setting:
+#   text - These files should be normalized (CRLF => LF).
+#   binary - These files are binary and should be left untouched.
+
+# Note: binary is a macro for -text -diff.
+
+## AUTO-DETECT ################################################################################## ##
+
+# This will handle all files NOT defined below.
+
+*  text=auto  eol=lf
+*.csv  text  eol=lf
+
+## DOCUMENTATION ################################################################################ ##
+
+AUTHORS  text  eol=lf
+CHANGELOG  text  eol=lf
+CHANGES  text  eol=lf
+CONTRIBUTING  text  eol=lf
+COPYING  text  eol=lf
+copyright  text  eol=lf
+*COPYRIGHT*  text  eol=lf
+INSTALL  text  eol=lf
+license  text  eol=lf
+LICENSE  text  eol=lf
+*.markdown  text  eol=lf
+*.md  text  eol=lf
+*.mdown  text  eol=lf
+*.mdtext  text  eol=lf
+*.mdtxt  text  eol=lf
+*.mdwn  text  eol=lf
+*.mkd  text  eol=lf
+*.mkdn  text  eol=lf
+NEWS  text  eol=lf
+readme  text  eol=lf
+*README*  text  eol=lf
+TODO  text  eol=lf
+*.txt  text  eol=lf
+
+## TRANSLATION ################################################################################## ##
+
+*.strings  text  eol=lf
+
+## CONFIGS ###################################################################################### ##
+
+*.bowerrc  text  eol=lf
+*.cnf  text  eol=lf
+*.conf  text  eol=lf
+*.config  text  eol=lf
+.editorconfig  text  eol=lf
+.gitattributes  text  eol=lf
+.gitconfig  text  eol=lf
+.gitignore  text  eol=lf
+.htaccess  text  eol=lf
+.htpasswd  text  eol=lf
+Makefile  text  eol=lf
+makefile  text  eol=lf
+*.npmignore  text  eol=lf
+*.yaml  text  eol=lf
+*.yml  text  eol=lf
+
+## SOURCE CODE ################################################################################## ##
+
+*.bat  text  eol=lf
+*.coffee  text  eol=lf
+*.css  text  eol=lf
+*.htm  text  eol=lf
+*.html  text  eol=lf
+*.inc  text  eol=lf
+*.ini  text  eol=lf
+*.js  text  eol=lf
+*.json  text  eol=lf
+*.jsx  text  eol=lf
+*.less  text  eol=lf
+*.od  text  eol=lf
+*.onlydata  text  eol=lf
+*.php  text  eol=lf
+*.pl  text  eol=lf
+*.py  text  eol=lf
+*.rb  text  eol=lf
+*.sass  text  eol=lf
+*.scm  text  eol=lf
+*.scss  text  eol=lf
+*.sh  text  eol=lf
+*.sql  text  eol=lf
+*.styl  text  eol=lf
+*.ts  text  eol=lf
+*.xhtml  text  eol=lf
+*.xml  text  eol=lf
+
+## TEMPLATES #################################################################################### ##
+
+*.dot  text  eol=lf
+*.ejs  text  eol=lf
+*.haml  text  eol=lf
+*.handlebars  text  eol=lf
+*.hbs  text  eol=lf
+*.hbt  text  eol=lf
+*.jade  text  eol=lf
+*.latte  text  eol=lf
+*.mustache  text  eol=lf
+*.njk  text  eol=lf
+*.phtml  text  eol=lf
+*.tmpl  text  eol=lf
+*.tpl  text  eol=lf
+*.twig  text  eol=lf
+
+## DOCKER ####################################################################################### ##
+
+Dockerfile  text  eol=lf
+*.dockerignore  text  eol=lf
+
+## HEROKU ####################################################################################### ##
+
+Procfile  text  eol=lf
+.slugignore  text  eol=lf
+
+## LINTERS ###################################################################################### ##
+
+.csslintrc  text  eol=lf
+.eslintrc  text  eol=lf
+.jscsrc  text  eol=lf
+.jshintignore  text  eol=lf
+.jshintrc  text  eol=lf
+.stylelintrc  text  eol=lf
+
+## GRAPHICS ##################################################################################### ##
+
+*.ai  merge=binary
+*.bmp  merge=binary
+*.eps  merge=binary
+*.gif  merge=binary
+*.ico  merge=binary
+*.jng  merge=binary
+*.jp2  merge=binary
+*.jpeg  merge=binary
+*.jpg  merge=binary
+*.jpx  merge=binary
+*.jxr  merge=binary
+*.pdf  merge=binary
+*.png  merge=binary
+*.psb  merge=binary
+*.psd  merge=binary
+*.svg  text  eol=lf
+*.svgz  merge=binary
+*.tif  merge=binary
+*.tiff  merge=binary
+*.wbmp  merge=binary
+*.webp  merge=binary
+
+## AUDIO ######################################################################################## ##
+
+*.kar  merge=binary
+*.m4a  merge=binary
+*.mid  merge=binary
+*.midi  merge=binary
+*.mp3  merge=binary
+*.ogg  merge=binary
+*.ra  merge=binary
+
+## VIDEO ######################################################################################## ##
+
+*.3gp  merge=binary
+*.3gpp  merge=binary
+*.as  merge=binary
+*.asf  merge=binary
+*.asx  merge=binary
+*.fla  merge=binary
+*.flv  merge=binary
+*.m4v  merge=binary
+*.mng  merge=binary
+*.mov  merge=binary
+*.mp4  merge=binary
+*.mpeg  merge=binary
+*.mpg  merge=binary
+*.swc  merge=binary
+*.swf  merge=binary
+*.webm  merge=binary
+
+## ARCHIVES ##################################################################################### ##
+
+*.7z  merge=binary
+*.gz  merge=binary
+*.rar  merge=binary
+*.tar  merge=binary
+*.zip  merge=binary
+
+## FONTS ######################################################################################## ##
+
+*.eot  merge=binary
+*.otf  merge=binary
+*.ttf  merge=binary
+*.woff  merge=binary
+*.woff2  merge=binary
+
+## EXECUTABLES ################################################################################## ##
+
+*.exe  merge=binary
+*.pyc  merge=binary
