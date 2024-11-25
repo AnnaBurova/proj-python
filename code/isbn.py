@@ -11,6 +11,9 @@ import pdfplumber
 import os
 
 folder_ = "C:/Data/"
+first_pages = 10
+last_pages = 0
+all_pages = False
 
 
 def extract_isbn_from_pdf(file_path):
@@ -18,7 +21,9 @@ def extract_isbn_from_pdf(file_path):
     print("Open:", file_path)
     # Регулярное выражение для поиска ISBN-13 или ISBN-10
     isbn_pattern1 = r"\b(?:ISBN(?:-1[03])?:?\s*)?(\d{9}[\dX]|\d{13})\b"
-    isbn_pattern2 = r"\b97[89]-\d{1,5}-\d{1,7}-\d{1,6}-\d\b"
+    isbn_pattern2 = r"\b(?:ISBN(?:[-\s]?(?:1[03])?)?:?\s*)?(97[89]-\d{1,5}-\d{1,7}-\d{1,7}-\d)\b"
+    isbn_pattern3 = r"\b97[89]-\d{1,5}-\d{1,7}-\d{1,7}-\d\b"
+    isbn_pattern4 = r"\b97[89]-\d{10}\b"
 
     try:
         with pdfplumber.open(file_path) as pdf:
@@ -26,14 +31,23 @@ def extract_isbn_from_pdf(file_path):
             i = 0
             for page in pdf.pages:
                 i += 1
-                if i > 10:
-                    if i < (len(pdf.pages) - 10):
-                        continue
+                if not all_pages:
+                    if i > first_pages:
+                        if i < (len(pdf.pages) - last_pages):
+                            continue
                 text += page.extract_text()
 
             isbns1 = re.findall(isbn_pattern1, text)
             isbns2 = re.findall(isbn_pattern2, text)
-            return isbns1 + isbns2
+            isbns3 = re.findall(isbn_pattern3, text)
+            isbns4 = re.findall(isbn_pattern4, text)
+            isbns1 = [isbn.replace("-", "") for isbn in isbns1]
+            isbns2 = [isbn.replace("-", "") for isbn in isbns2]
+            isbns3 = [isbn.replace("-", "") for isbn in isbns3]
+            isbns4 = [isbn.replace("-", "") for isbn in isbns4]
+            isbn = list(set(isbns1 + isbns2 + isbns3 + isbns4))
+            print(isbn)
+            return isbn
     except Exception as e:
         print(f"Ошибка при обработке файла: {e}")
         return []
@@ -87,7 +101,6 @@ for file_name in os.listdir(folder_):
                 i += 1
                 print("-------------------------------------------------------")
                 print(i, "isbn: ", isbn)
-                isbn = isbn.replace("-", "")
                 valid = validate_isbn(isbn)
                 print(f"ISBN {isbn} валиден? {valid}")
                 print()
@@ -111,6 +124,7 @@ for file_name in os.listdir(folder_):
                             print(book_k, "::", book_v)
                             book_v = book_v.replace("The ", "")
                             book_v = book_v.replace(" the ", " ")
+                            book_v = book_v.replace(" & ", " and ")
                         print(book_k, ":", book_v)
                 else:
                     print("+++ no book info +++")
