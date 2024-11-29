@@ -10,6 +10,7 @@ from PIL import Image
 import numpy as np
 import cv2
 import os
+import re
 
 # Load the uploaded image
 image_path = "images-and-colors.png"
@@ -46,24 +47,26 @@ else:
 # Convert the image to HSV for color detection
 hsv_image = cv2.cvtColor(image_cv, cv2.COLOR_BGR2HSV)
 
-dict_colors = {
-    "cyan": {
-        "lower": [85, 100, 100],
-        "upper": [105, 255, 255],
-    },
-    "purple": {
-        "lower": [130, 100, 100],
-        "upper": [160, 255, 255],
-    },
-    "green": {
-        "lower": [50, 100, 100],
-        "upper": [70, 255, 255],
-    },
-    "white": {
-        "lower": [0, 0, 200],
-        "upper": [180, 55, 255],
-    }
+rgb_list = {
+    "BGL": [0, 255, 255],
+    "BGB": [178, 0, 255],
+    "BGA": [0, 38, 255],
+    "BGV": [255, 0, 0],
+    "A4": [255, 255, 255],
+    "BGM": [76, 255, 0],
+    "A1": [255, 216, 0],
 }
+
+dict_colors = {}
+for rgb_name, rgb_color in rgb_list.items():
+    # BGR
+    check_color = np.uint8([[[rgb_color[2], rgb_color[1], rgb_color[0]]]])
+    hsv_color = cv2.cvtColor(check_color, cv2.COLOR_BGR2HSV)
+    hue, saturation, value = hsv_color[0][0]
+    dict_colors[rgb_name] = {}
+    dict_colors[rgb_name]["lower"] = [hue-10, 100, 100]
+    dict_colors[rgb_name]["upper"] = [hue+10, 255, 255]
+    # print(dict_colors)
 
 for color_name, color_range in dict_colors.items():
     _lower = np.array(color_range["lower"])
@@ -75,4 +78,4 @@ for color_name, color_range in dict_colors.items():
     _count = len(_contours)
 
     # Print the results
-    print(f"{color_name} count: {_count}")
+    print(f"{color_name} : {_count}")
