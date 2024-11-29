@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Nov 2024
+
+@author: KoreAnna
+"""
+
 # Import required libraries
 from PIL import Image
 import numpy as np
@@ -39,47 +46,33 @@ else:
 # Convert the image to HSV for color detection
 hsv_image = cv2.cvtColor(image_cv, cv2.COLOR_BGR2HSV)
 
-# Define color ranges for detection
-cyan_lower = np.array([85, 100, 100])
-cyan_upper = np.array([105, 255, 255])
+dict_colors = {
+    "cyan": {
+        "lower": [85, 100, 100],
+        "upper": [105, 255, 255],
+    },
+    "purple": {
+        "lower": [130, 100, 100],
+        "upper": [160, 255, 255],
+    },
+    "green": {
+        "lower": [50, 100, 100],
+        "upper": [70, 255, 255],
+    },
+    "white": {
+        "lower": [0, 0, 200],
+        "upper": [180, 55, 255],
+    }
+}
 
-purple_lower = np.array([130, 100, 100])
-purple_upper = np.array([160, 255, 255])
+for color_name, color_range in dict_colors.items():
+    _lower = np.array(color_range["lower"])
+    _upper = np.array(color_range["upper"])
+    _mask = cv2.inRange(hsv_image, _lower, _upper)
 
-green_lower = np.array([50, 100, 100])
-green_upper = np.array([70, 255, 255])
+    _contours, _ = cv2.findContours(
+        _mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    _count = len(_contours)
 
-white_lower = np.array([0, 0, 200])
-white_upper = np.array([180, 55, 255])
-
-# Create masks for each color
-cyan_mask = cv2.inRange(hsv_image, cyan_lower, cyan_upper)
-purple_mask = cv2.inRange(hsv_image, purple_lower, purple_upper)
-green_mask = cv2.inRange(hsv_image, green_lower, green_upper)
-white_mask = cv2.inRange(hsv_image, white_lower, white_upper)
-
-# Count the cyan squares
-cyan_contours, _ = cv2.findContours(
-    cyan_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-cyan_count = len(cyan_contours)
-
-# Count the purple squares
-purple_contours, _ = cv2.findContours(
-    purple_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-purple_count = len(purple_contours)
-
-# Count the green squares
-green_contours, _ = cv2.findContours(
-    green_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-green_count = len(green_contours)
-
-# Count the white squares
-white_contours, _ = cv2.findContours(
-    white_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-white_count = len(white_contours)
-
-# Print the results
-print(f"Cyan count: {cyan_count}")
-print(f"Purple count: {purple_count}")
-print(f"Green count: {green_count}")
-print(f"White count: {white_count}")
+    # Print the results
+    print(f"{color_name} count: {_count}")
