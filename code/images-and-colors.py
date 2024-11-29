@@ -10,7 +10,6 @@ from PIL import Image
 import numpy as np
 import cv2
 import os
-import re
 
 # Load the uploaded image
 image_path = "images-and-colors.png"
