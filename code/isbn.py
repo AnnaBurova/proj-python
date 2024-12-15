@@ -11,17 +11,29 @@ import pdfplumber
 import os
 
 folder_ = "C:/Data/"
-first_pages = 10
+prefix = ""
+first_pages = 25
 last_pages = 0
 all_pages = False
 
 
 def extract_isbn_from_pdf(file_path):
-    # Регулярное выражение для поиска ISBN-13 или ISBN-10
-    isbn_pattern1 = r"\b(?:ISBN(?:-1[03])?:?\s*)?(\d{9}[\dX]|\d{13})\b"
-    isbn_pattern2 = r"\b(?:ISBN(?:[-\s]?(?:1[03])?)?:?\s*)?(97[89]-\d{1,5}-\d{1,7}-\d{1,7}-\d)\b"
-    isbn_pattern3 = r"\b97[89]-\d{1,5}-\d{1,7}-\d{1,7}-?\d\b"
-    isbn_pattern4 = r"\b97[89]-\d{10}\b"
+    isbn_pattern = r"""
+        # WORD START
+        \b
+        # "ISBN-10", "ISBN-13", "ISBN" (opt)
+        (?:ISBN(?:-1[03])?:?\s*)?
+        # ISBN-13
+        (97[89][- ]*\d{1,5}[- ]*\d{1,7}[- ]*\d{1,7}[- ]*[\dX]
+        # ISBN-10 (or)
+        |\d{9}[\dX])
+        # Type of print (opt)
+        (?:\s*\([a-z]+\))?
+        \b
+        # WORD END
+    """
+
+    isbn_compile = re.compile(isbn_pattern, re.VERBOSE)
 
     try:
         with pdfplumber.open(file_path) as pdf:
@@ -35,17 +47,13 @@ def extract_isbn_from_pdf(file_path):
                             continue
                 text += page.extract_text()
 
-            isbns1 = re.findall(isbn_pattern1, text)
-            isbns2 = re.findall(isbn_pattern2, text)
-            isbns3 = re.findall(isbn_pattern3, text)
-            isbns4 = re.findall(isbn_pattern4, text)
-            isbns1 = [isbn.replace("-", "") for isbn in isbns1]
-            isbns2 = [isbn.replace("-", "") for isbn in isbns2]
-            isbns3 = [isbn.replace("-", "") for isbn in isbns3]
-            isbns4 = [isbn.replace("-", "") for isbn in isbns4]
-            isbn = list(set(isbns1 + isbns2 + isbns3 + isbns4))
-            print(isbn)
-            return isbn
+            isbns = re.findall(isbn_compile, text)
+            isbns = [isbn.replace("-", "") for isbn in isbns]
+            isbns = [isbn.replace(" ", "") for isbn in isbns]
+            isbns = list(set(isbns))
+            print("isbns:", isbns)
+
+            return isbns
     except Exception as e:
         print(f"Ошибка при обработке файла: {e}")
         return []
@@ -98,44 +106,48 @@ for file_name in os.listdir(folder_):
         input(">>> ")
         isbn_list = extract_isbn_from_pdf(folder_ + file_name)
         if isbn_list:
-            print("Найденные ISBN:")
+            print("Found ISBN:")
             i = 0
             for isbn in isbn_list:
                 i += 1
                 print("-------------------------------------------------------")
                 print(i, "isbn: ", isbn)
                 valid = validate_isbn(isbn)
-                print(f"ISBN {isbn} валиден? {valid}")
+                print(f"ISBN {isbn} is valid? {valid}")
                 print()
-                # isbn = "9780134190440"  # Пример ISBN
+                # isbn = "9780134190440"
 
                 book_info = False
                 if valid:
                     book_info = get_book_info(isbn)
 
-                if book_info:
-                    for book_k, book_v in book_info.items():
-                        if book_k == "previewLink":
-                            continue
-                        if book_k == "infoLink":
-                            continue
-                        if book_k == "canonicalVolumeLink":
-                            continue
-                        if book_k == "description":
-                            continue
-                        if book_k == "title":
-                            print(book_k, "::", book_v)
-                            book_v = book_v.replace(", Second Edition", "")
-                            book_v = book_v.replace(", Third Edition", "")
-                            book_v = book_v.replace("The ", "")
-                            book_v = book_v.replace(" the ", " ")
-                            book_v = book_v.replace(" & ", " and ")
-                            book_v = book_v.replace(".js", "_JS")
-                            book_v = book_v.replace(
-                                "Artificial Intelligence", "AI")
-                            book_v = prefix + book_v
-                        print(book_k, ":", book_v)
-                else:
-                    print("+++ no book info +++")
+                    if book_info:
+                        for book_k, book_v in book_info.items():
+                            if book_k == "previewLink":
+                                continue
+                            if book_k == "infoLink":
+                                continue
+                            if book_k == "canonicalVolumeLink":
+                                continue
+                            if book_k == "description":
+                                continue
+                            if book_k == "title":
+                                print(book_k, "::", book_v)
+                                book_v = book_v.replace(", Second Edition", "")
+                                book_v = book_v.replace(", Third Edition", "")
+                                book_v = book_v.replace("The ", "")
+                                book_v = book_v.replace(" the ", " ")
+                                book_v = book_v.replace(" & ", " and ")
+                                book_v = book_v.replace(".js", "_JS")
+                                book_v = book_v.replace("C#", "C-Sharp")
+                                book_v = book_v.replace("JQuery", "jQuery")
+                                book_v = book_v.replace("®", "")
+                                book_v = book_v.replace(" Ai ", " AI ")
+                                book_v = book_v.replace(
+                                    "Artificial Intelligence", "AI")
+                                book_v = prefix + book_v
+                            print(book_k, ":", book_v)
+                    else:
+                        print("+++ no book info +++")
         else:
-            print("ISBN не найдены.")
+            print("ISBN not found.")
