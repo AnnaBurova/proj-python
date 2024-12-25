@@ -5,10 +5,10 @@ Created on Nov 2024
 @author: KoreAnna
 """
 
+import os
 import requests
 import re
 import pdfplumber
-import os
 
 folder_ = "C:/Data/"
 prefix = ""
@@ -104,6 +104,8 @@ for file_name in os.listdir(folder_):
         print("Open:", folder_ + file_name)
         print("=======================================================")
         input(">>> ")
+        print("Wait...")
+        print("-------------------------------------------------------")
         isbn_list = extract_isbn_from_pdf(folder_ + file_name)
         if isbn_list:
             print("Found ISBN:")
@@ -135,13 +137,21 @@ for file_name in os.listdir(folder_):
                                 print(book_k, "::", book_v)
                                 book_v = book_v.replace(", Second Edition", "")
                                 book_v = book_v.replace(", Third Edition", "")
+                                book_v = book_v.replace("®", "")
+                                book_v = book_v.replace("!", "")
                                 book_v = book_v.replace("The ", "")
                                 book_v = book_v.replace(" the ", " ")
+                                book_v = book_v.replace(" / ", " and ")
                                 book_v = book_v.replace(" & ", " and ")
+                                book_v = book_v.replace(", and ", " and ")
                                 book_v = book_v.replace(".js", "_JS")
                                 book_v = book_v.replace("C#", "C-Sharp")
+                                book_v = book_v.replace("C++", "CPP")
                                 book_v = book_v.replace("JQuery", "jQuery")
-                                book_v = book_v.replace("®", "")
+                                book_v = book_v.replace(" Office", " Microsoft Office")
+                                book_v = book_v.replace(" Access", " Microsoft Access")
+                                book_v = book_v.replace(" Excel", " Microsoft Excel")
+                                book_v = book_v.replace(" Microsoft Microsoft", " Microsoft")
                                 book_v = book_v.replace(" Ai ", " AI ")
                                 book_v = book_v.replace(
                                     "Artificial Intelligence", "AI")
