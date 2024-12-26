@@ -132,6 +132,8 @@ for file_name in os.listdir(folder_):
                 print(i, "isbn: ", isbn)
                 valid = validate_isbn(isbn)
                 print(f"ISBN {isbn} is valid? {valid}")
+                if not valid:
+                    isbn_list.remove(isbn)
                 print()
                 # isbn = "9780134190440"
 
@@ -163,6 +165,7 @@ for file_name in os.listdir(folder_):
                                 book_v = book_v.replace(" & ", " and ")
                                 book_v = book_v.replace(", and ", " and ")
                                 book_v = book_v.replace(".js", "_JS")
+                                book_v = book_v.replace(" .NET", " dotNET")
                                 book_v = book_v.replace("#", "-Sharp")
                                 book_v = book_v.replace("C++", "CPP")
                                 book_v = book_v.replace("JQuery", "jQuery")
@@ -186,6 +189,7 @@ for file_name in os.listdir(folder_):
         save_data_into_file("-------------------------------------------------------")
         print("file_name:", file_name)
         save_data_into_file("file_name: "+file_name)
+        save_data_into_file(str(isbn_list))
         for book_name in gather_names:
             print(book_name)
             save_data_into_file(book_name)
