@@ -149,6 +149,8 @@ for file_name in os.listdir(folder_):
                                 continue
                             if book_k == "description":
                                 continue
+                            if book_k == "publishedDate":
+                                gather_names.append(book_v)
                             if book_k == "title":
                                 print(book_k, "::", book_v)
                                 book_v = book_v.replace(", Second Edition", "")
