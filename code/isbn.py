@@ -15,6 +15,7 @@ prefix = ""
 first_pages = 25
 last_pages = 0
 all_pages = False
+self_controle = False
 
 
 def extract_isbn_from_pdf(file_path):
@@ -96,6 +97,19 @@ def get_book_info(isbn):
     return None
 
 
+def save_data_into_file(text):
+    """ Save data into file """
+
+    file_name = "result.txt"
+
+    # Replace CRLF (\r\n) to LF (\n)
+    text = text.replace("\r\n", "\n")
+
+    with open(file_name, "a", encoding="utf-8", newline="\n") as outfile:
+        outfile.write(text)
+        outfile.write("\n")
+
+
 # Iterate through each PDF file in the folder
 for file_name in os.listdir(folder_):
     if file_name.endswith(".pdf") and file_name.startswith("_"):
@@ -103,10 +117,12 @@ for file_name in os.listdir(folder_):
         print("=======================================================")
         print("Open:", folder_ + file_name)
         print("=======================================================")
-        input(">>> ")
+        if self_controle:
+            input(">>> ")
         print("Wait...")
         print("-------------------------------------------------------")
         isbn_list = extract_isbn_from_pdf(folder_ + file_name)
+        gather_names = []
         if isbn_list:
             print("Found ISBN:")
             i = 0
@@ -146,6 +162,7 @@ for file_name in os.listdir(folder_):
                                 book_v = book_v.replace(", and ", " and ")
                                 book_v = book_v.replace(".js", "_JS")
                                 book_v = book_v.replace("C#", "C-Sharp")
+                                book_v = book_v.replace("Q#", "Q-Sharp")
                                 book_v = book_v.replace("C++", "CPP")
                                 book_v = book_v.replace("JQuery", "jQuery")
                                 book_v = book_v.replace(" Office", " Microsoft Office")
@@ -156,8 +173,17 @@ for file_name in os.listdir(folder_):
                                 book_v = book_v.replace(
                                     "Artificial Intelligence", "AI")
                                 book_v = prefix + book_v
+                                gather_names.append(book_v)
                             print(book_k, ":", book_v)
                     else:
                         print("+++ no book info +++")
         else:
             print("ISBN not found.")
+
+        print("-------------------------------------------------------")
+        save_data_into_file("-------------------------------------------------------")
+        print("file_name:", file_name)
+        save_data_into_file("file_name: "+file_name)
+        for book_name in gather_names:
+            print(book_name)
+            save_data_into_file(book_name)
