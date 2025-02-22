@@ -16,6 +16,8 @@ first_pages = 25
 last_pages = 0
 all_pages = False
 self_controle = False
+name_start = "_"
+name_end = ".pdf"
 
 
 def extract_isbn_from_pdf(file_path):
@@ -24,6 +26,7 @@ def extract_isbn_from_pdf(file_path):
         \b
         # "ISBN-10", "ISBN-13", "ISBN" (opt)
         (?:ISBN(?:-1[03])?:?\s*)?
+        # (?:ISBN(?:-1[03])?(?:\s*\([a-zA-Z]+\))?:?\s*)?
         # ISBN-13
         (97[89][- ]*\d{1,5}[- ]*\d{1,7}[- ]*\d{1,7}[- ]*[\dX]
         # ISBN-10 (or)
@@ -112,7 +115,7 @@ def save_data_into_file(text):
 
 # Iterate through each PDF file in the folder
 for file_name in os.listdir(folder_):
-    if file_name.endswith(".pdf") and file_name.startswith("_"):
+    if file_name.endswith(name_end) and file_name.startswith(name_start):
         print()
         print("=======================================================")
         print("Open:", folder_ + file_name)
@@ -157,6 +160,9 @@ for file_name in os.listdir(folder_):
                                 print(book_k, "::", book_v)
                                 book_v = book_v.replace(", Second Edition", "")
                                 book_v = book_v.replace(", Third Edition", "")
+                                book_v = book_v.replace(" - Second Edition", "")
+                                book_v = book_v.replace(" - Third Edition", "")
+                                book_v = book_v.replace(" - Fourth Edition", "")
                                 book_v = book_v.replace("®", "")
                                 book_v = book_v.replace("!", "")
                                 book_v = book_v.replace("The ", "")
@@ -174,9 +180,10 @@ for file_name in os.listdir(folder_):
                                 book_v = book_v.replace(" Access", " Microsoft Access")
                                 book_v = book_v.replace(" Excel", " Microsoft Excel")
                                 book_v = book_v.replace(" Microsoft Microsoft", " Microsoft")
+                                book_v = book_v.replace("Hands-on", "Hands-On")
                                 book_v = book_v.replace(" Ai ", " AI ")
-                                book_v = book_v.replace(
-                                    "Artificial Intelligence", "AI")
+                                book_v = book_v.replace("Artificial Intelligence", "AI")
+                                book_v = book_v.replace("Object-Oriented Programming", "OOP")
                                 book_v = prefix + book_v
                                 gather_names.append(book_v)
                             print(book_k, ":", book_v)
