@@ -142,7 +142,11 @@ for file_name in os.listdir(folder_):
 
                 book_info = False
                 if valid:
-                    book_info = get_book_info(isbn)
+                    try:
+                        book_info = get_book_info(isbn)
+                    except:
+                        print("Connection aborted.")
+                        break
 
                     if book_info:
                         for book_k, book_v in book_info.items():
@@ -165,6 +169,7 @@ for file_name in os.listdir(folder_):
                                 book_v = book_v.replace(" - Fourth Edition", "")
                                 book_v = book_v.replace("®", "")
                                 book_v = book_v.replace("!", "")
+                                book_v = book_v.replace(":", "")
                                 book_v = book_v.replace("The ", "")
                                 book_v = book_v.replace(" the ", " ")
                                 book_v = book_v.replace(" / ", " and ")
@@ -184,6 +189,7 @@ for file_name in os.listdir(folder_):
                                 book_v = book_v.replace(" Ai ", " AI ")
                                 book_v = book_v.replace("Artificial Intelligence", "AI")
                                 book_v = book_v.replace("Object-Oriented Programming", "OOP")
+                                book_v = book_v.replace("  ", " ")
                                 book_v = prefix + book_v
                                 gather_names.append(book_v)
                             print(book_k, ":", book_v)
