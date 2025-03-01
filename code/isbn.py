@@ -74,8 +74,9 @@ def extract_isbn_from_pdf(file_path):
             isbns = re.findall(isbn_compile, text)
             isbns = [isbn.replace("-", "") for isbn in isbns]
             isbns = [isbn.replace(" ", "") for isbn in isbns]
-            isbns = [isbn.replace("ISBN:", "") for isbn in isbns]
-            isbns = [isbn.replace("ISBN13:", "") for isbn in isbns]
+            isbns = [isbn.replace("ISBN", "") for isbn in isbns]
+            isbns = [isbn.replace("ISBN13", "") for isbn in isbns]
+            isbns = [isbn.replace(":", "") for isbn in isbns]
             isbns = list(set(isbns))
 
             if isbns == []:
@@ -219,6 +220,7 @@ def work_with_isbn_list(isbn_list):
 # Iterate through each PDF file in the folder
 for file_name in os.listdir(folder):
     if file_name.startswith(name_start) and file_name.endswith(name_end):
+        gather_info = []
         print()
         print(line_fatty)
         print("Open:", folder + file_name)
