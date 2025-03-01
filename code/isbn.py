@@ -9,8 +9,11 @@ import os
 import requests
 import re
 import pdfplumber
+import sys
 
-folder_ = "C:/Data/"
+line_fatty = "====================================================================================="
+line_slimm = "-------------------------------------------------------------------------------------"
+folder = "C:/Data/"
 prefix = ""
 first_pages = 25
 last_pages = 0
@@ -18,23 +21,40 @@ all_pages = False
 self_controle = False
 name_start = "_"
 name_end = ".pdf"
+gather_info = []
+
+
+def save_data_into_log_file(text):
+    print(text)
+
+    # Replace CRLF (\r\n) to LF (\n)
+    text = text.replace("\r\n", "\n")
+
+    with open("pdf_result.txt", "a", encoding="utf-8", newline="\n") as outfile:
+        outfile.write(text)
+        outfile.write("\n")
 
 
 def extract_isbn_from_pdf(file_path):
+    # \b - WORD boundary
+    # (?:TEXT_OR_PATTERN)? - optional group
+    # _? - single optional symbol _
+    # \s* - 0 or more empty symbols
+    # \d - any digit
     isbn_pattern = r"""
-        # WORD START
         \b
-        # "ISBN-10", "ISBN-13", "ISBN" (opt)
-        (?:ISBN(?:-1[03])?:?\s*)?
-        # (?:ISBN(?:-1[03])?(?:\s*\([a-zA-Z]+\))?:?\s*)?
-        # ISBN-13
-        (97[89][- ]*\d{1,5}[- ]*\d{1,7}[- ]*\d{1,7}[- ]*[\dX]
-        # ISBN-10 (or)
-        |\d{9}[\dX])
-        # Type of print (opt)
-        (?:\s*\([a-z]+\))?
+        (?:ISBN(?:-13)?:?\s*)?
+        97[89]
+        [-\s]?
+        \d{1,5}
+        [-\s]?
+        \d{1,7}
+        [-\s]?
+        \d{1,7}
+        [-\s]?
+        \d
+        # [\dX]
         \b
-        # WORD END
     """
 
     isbn_compile = re.compile(isbn_pattern, re.VERBOSE)
@@ -54,26 +74,33 @@ def extract_isbn_from_pdf(file_path):
             isbns = re.findall(isbn_compile, text)
             isbns = [isbn.replace("-", "") for isbn in isbns]
             isbns = [isbn.replace(" ", "") for isbn in isbns]
+            isbns = [isbn.replace("ISBN:", "") for isbn in isbns]
+            isbns = [isbn.replace("ISBN13:", "") for isbn in isbns]
             isbns = list(set(isbns))
-            print("isbns:", isbns)
+
+            if isbns == []:
+                with open("pdf_content.txt", "w", encoding="utf-8", newline="\n") as pdf_content:
+                    pdf_content.write(text)
+                    pdf_content.write("\n")
 
             return isbns
+
     except Exception as e:
         print(f"Ошибка при обработке файла: {e}")
         return []
 
 
 def validate_isbn(isbn):
-    # Проверка ISBN-13
+    # Validation ISBN-13
     if len(isbn) == 13 and isbn.isdigit():
-        total = sum((3 if i % 2 else 1) * int(digit) for i,
-                    digit in enumerate(isbn))
+        total = sum((3 if i % 2 else 1) * int(digit) for i, digit in enumerate(isbn))
         return total % 10 == 0
-    # Проверка ISBN-10
+
+    # Validation ISBN-10
     elif len(isbn) == 10:
-        total = sum((10 - i) * (10 if digit == 'X' else int(digit)) for i,
-                    digit in enumerate(isbn))
+        total = sum((10 - i) * (10 if digit == 'X' else int(digit)) for i, digit in enumerate(isbn))
         return total % 11 == 0
+
     return False
 
 
@@ -82,127 +109,139 @@ def get_book_info(isbn):
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
+
         if "items" in data:
             book = data["items"][0]["volumeInfo"]
+
             result = {}
             for info_k, info_v in book.items():
-                if isinstance(info_v, str):
-                    if info_k == "description":
-                        info_v = "== description =="
-                    result[info_k] = info_v
-                elif isinstance(info_v, int):
-                    result[info_k] = info_v
-                elif isinstance(info_v, bool):
-                    result[info_k] = info_v
-                elif isinstance(info_v, list):
-                    result[info_k] = info_v
+                if info_k == "description":
+                    info_v = "== description =="
+                result[info_k] = info_v
             return result
+
     return None
 
 
-def save_data_into_file(text):
-    """ Save data into file """
+def print_book_info(book_info):
+    print()
+    for book_k, book_v in book_info.items():
+        if book_k == "description":
+            continue
+        if book_k == "imageLinks":
+            continue
+        if book_k == "previewLink":
+            continue
+        if book_k == "infoLink":
+            continue
+        if book_k == "canonicalVolumeLink":
+            continue
 
-    file_name = "result.txt"
+        if book_k == "industryIdentifiers":
+            isbn_13 = next((item['identifier'] for item in book_v
+                            if item['type'] == 'ISBN_13'), None)
+            book_v = isbn_13
 
-    # Replace CRLF (\r\n) to LF (\n)
-    text = text.replace("\r\n", "\n")
+        if book_k == "publishedDate":
+            gather_info.append(book_v)
 
-    with open(file_name, "a", encoding="utf-8", newline="\n") as outfile:
-        outfile.write(text)
-        outfile.write("\n")
+        if book_k == "title":
+            book_v = book_v.replace("The ", "")
+            book_v = book_v.replace(" the ", " ")
+            book_v = book_v.replace("®", "")
+            book_v = book_v.replace("!", "")
+            book_v = book_v.replace(":", ".")
+            book_v = book_v.replace(" / ", " or ")
+            book_v = book_v.replace(" & ", " and ")
+            book_v = book_v.replace(", and ", " and ")
+            book_v = book_v.replace(" .NET", " dotNET")
+            book_v = book_v.replace("#", "-Sharp")
+            book_v = book_v.replace("C++", "CPP")
+            book_v = book_v.replace(".js", "_JS")
+            book_v = book_v.replace("Internet of Things", "IoT")
+            book_v = book_v.replace("Artificial Intelligence", "AI")
+            book_v = book_v.replace("Object-Oriented Programming", "OOP")
+            book_v = book_v.replace(" Office", " Microsoft Office")
+            book_v = book_v.replace(" Access", " Microsoft Access")
+            book_v = book_v.replace(" Excel", " Microsoft Excel")
+            book_v = book_v.replace(" Microsoft Microsoft", " Microsoft")
+            book_v = book_v.replace(", Second Edition", "")
+            book_v = book_v.replace(" - Second Edition", "")
+            book_v = book_v.replace(", Third Edition", "")
+            book_v = book_v.replace(" - Third Edition", "")
+            book_v = book_v.replace(" - Fourth Edition", "")
+            book_v = book_v.replace("  ", " ")
+
+            book_v = book_v.replace("JQuery", "jQuery")
+            book_v = book_v.replace("Hands-on", "Hands-On")
+            book_v = book_v.replace("Typescript", "TypeScript")
+            book_v = book_v.replace("Fastapi", "FastAPI")
+            book_v = book_v.replace("Chatgpt", "ChatGPT")
+            book_v = book_v.replace("Grpc", "gRPC")
+            book_v = book_v.replace("Aws", "AWS")
+            book_v = book_v.replace(" Ai ", " AI ")
+
+            book_v = prefix + book_v
+            gather_info.append(book_v)
+
+        print(book_k, ":", book_v)
+
+
+def work_with_isbn_list(isbn_list):
+    i = 0
+    for isbn in isbn_list:
+        i += 1
+        print(line_slimm)
+        print(i, "isbn: ", isbn)
+
+        valid = validate_isbn(isbn)
+        print(f"ISBN {isbn} is valid? {valid}")
+
+        if not valid:
+            isbn_list.remove(isbn)
+            continue
+
+        if valid:
+            try:
+                book_info = get_book_info(isbn)
+            except Exception as e:
+                print(f"Connection aborted: {e}")
+                break
+
+            if book_info:
+                print_book_info(book_info)
+            else:
+                print(":( no book info :(")
+
+    return isbn_list
 
 
 # Iterate through each PDF file in the folder
-for file_name in os.listdir(folder_):
-    if file_name.endswith(name_end) and file_name.startswith(name_start):
+for file_name in os.listdir(folder):
+    if file_name.startswith(name_start) and file_name.endswith(name_end):
         print()
-        print("=======================================================")
-        print("Open:", folder_ + file_name)
-        print("=======================================================")
+        print(line_fatty)
+        print("Open:", folder + file_name)
+        print(line_fatty)
         if self_controle:
-            input(">>> ")
+            try:
+                input(">>> ")
+            except KeyboardInterrupt as e:
+                print(e)
+                sys.exit()
         print("Wait...")
-        print("-------------------------------------------------------")
-        isbn_list = extract_isbn_from_pdf(folder_ + file_name)
-        gather_names = []
+        print(line_slimm)
+        isbn_list = extract_isbn_from_pdf(folder + file_name)
+
         if isbn_list:
             print("Found ISBN:")
-            i = 0
-            for isbn in isbn_list:
-                i += 1
-                print("-------------------------------------------------------")
-                print(i, "isbn: ", isbn)
-                valid = validate_isbn(isbn)
-                print(f"ISBN {isbn} is valid? {valid}")
-                if not valid:
-                    isbn_list.remove(isbn)
-                print()
-                # isbn = "9780134190440"
-
-                book_info = False
-                if valid:
-                    try:
-                        book_info = get_book_info(isbn)
-                    except:
-                        print("Connection aborted.")
-                        break
-
-                    if book_info:
-                        for book_k, book_v in book_info.items():
-                            if book_k == "previewLink":
-                                continue
-                            if book_k == "infoLink":
-                                continue
-                            if book_k == "canonicalVolumeLink":
-                                continue
-                            if book_k == "description":
-                                continue
-                            if book_k == "publishedDate":
-                                gather_names.append(book_v)
-                            if book_k == "title":
-                                print(book_k, "::", book_v)
-                                book_v = book_v.replace(", Second Edition", "")
-                                book_v = book_v.replace(", Third Edition", "")
-                                book_v = book_v.replace(" - Second Edition", "")
-                                book_v = book_v.replace(" - Third Edition", "")
-                                book_v = book_v.replace(" - Fourth Edition", "")
-                                book_v = book_v.replace("®", "")
-                                book_v = book_v.replace("!", "")
-                                book_v = book_v.replace(":", "")
-                                book_v = book_v.replace("The ", "")
-                                book_v = book_v.replace(" the ", " ")
-                                book_v = book_v.replace(" / ", " and ")
-                                book_v = book_v.replace(" & ", " and ")
-                                book_v = book_v.replace(", and ", " and ")
-                                book_v = book_v.replace(".js", "_JS")
-                                book_v = book_v.replace(" .NET", " dotNET")
-                                book_v = book_v.replace("#", "-Sharp")
-                                book_v = book_v.replace("C++", "CPP")
-                                book_v = book_v.replace("JQuery", "jQuery")
-                                book_v = book_v.replace("Internet of Things", "IoT")
-                                book_v = book_v.replace(" Office", " Microsoft Office")
-                                book_v = book_v.replace(" Access", " Microsoft Access")
-                                book_v = book_v.replace(" Excel", " Microsoft Excel")
-                                book_v = book_v.replace(" Microsoft Microsoft", " Microsoft")
-                                book_v = book_v.replace("Hands-on", "Hands-On")
-                                book_v = book_v.replace(" Ai ", " AI ")
-                                book_v = book_v.replace("Artificial Intelligence", "AI")
-                                book_v = book_v.replace("Object-Oriented Programming", "OOP")
-                                book_v = book_v.replace("  ", " ")
-                                book_v = prefix + book_v
-                                gather_names.append(book_v)
-                            print(book_k, ":", book_v)
-                    else:
-                        print("+++ no book info +++")
+            print(isbn_list)
+            isbn_list = work_with_isbn_list(isbn_list)
         else:
             print("ISBN not found.")
 
-        print("-------------------------------------------------------")
-        save_data_into_file("-------------------------------------------------------")
-        print("file_name:", file_name)
-        save_data_into_file("file_name: "+file_name)
-        save_data_into_file(str(isbn_list))
-        for book_name in gather_names:
-            print(book_name)
-            save_data_into_file(book_name)
+        save_data_into_log_file(line_slimm)
+        save_data_into_log_file("file_name: "+file_name)
+        save_data_into_log_file("isbn_list: "+str(isbn_list))
+        for book_name in gather_info:
+            save_data_into_log_file(book_name)
