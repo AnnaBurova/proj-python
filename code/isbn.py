@@ -11,11 +11,11 @@ import re
 import pdfplumber
 import sys
 
-line_fatty = "====================================================================================="
-line_slimm = "-------------------------------------------------------------------------------------"
 folder = "C:/Data/"
 prefix = ""
 first_pages = 25
+line_fatty = "================================================================================"
+line_slimm = "--------------------------------------------------------------------------------"
 last_pages = 0
 all_pages = False
 self_controle = False
@@ -74,9 +74,10 @@ def extract_isbn_from_pdf(file_path):
             isbns = re.findall(isbn_compile, text)
             isbns = [isbn.replace("-", "") for isbn in isbns]
             isbns = [isbn.replace(" ", "") for isbn in isbns]
-            isbns = [isbn.replace("ISBN", "") for isbn in isbns]
             isbns = [isbn.replace("ISBN13", "") for isbn in isbns]
+            isbns = [isbn.replace("ISBN", "") for isbn in isbns]
             isbns = [isbn.replace(":", "") for isbn in isbns]
+            isbns = [isbn.replace("\n", "") for isbn in isbns]
             isbns = list(set(isbns))
 
             if isbns == []:
@@ -162,15 +163,12 @@ def print_book_info(book_info):
             book_v = book_v.replace("Internet of Things", "IoT")
             book_v = book_v.replace("Artificial Intelligence", "AI")
             book_v = book_v.replace("Object-Oriented Programming", "OOP")
+            book_v = book_v.replace("Search Engine Optimization", "SEO")
             book_v = book_v.replace(" Office", " Microsoft Office")
             book_v = book_v.replace(" Access", " Microsoft Access")
             book_v = book_v.replace(" Excel", " Microsoft Excel")
-            book_v = book_v.replace(" Microsoft Microsoft", " Microsoft")
-            book_v = book_v.replace(", Second Edition", "")
-            book_v = book_v.replace(" - Second Edition", "")
-            book_v = book_v.replace(", Third Edition", "")
-            book_v = book_v.replace(" - Third Edition", "")
-            book_v = book_v.replace(" - Fourth Edition", "")
+            book_v = book_v.replace("Microsoft Microsoft", "Microsoft")
+            book_v = book_v.replace("Python 3", "Python")
             book_v = book_v.replace("  ", " ")
 
             book_v = book_v.replace("JQuery", "jQuery")
@@ -179,6 +177,7 @@ def print_book_info(book_info):
             book_v = book_v.replace("Fastapi", "FastAPI")
             book_v = book_v.replace("Chatgpt", "ChatGPT")
             book_v = book_v.replace("Grpc", "gRPC")
+            book_v = book_v.replace("Arcgis", "ArcGIS")
             book_v = book_v.replace("Aws", "AWS")
             book_v = book_v.replace(" Ai ", " AI ")
 
