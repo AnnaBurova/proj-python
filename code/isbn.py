@@ -144,8 +144,11 @@ def print_book_info(book_info):
                             if item['type'] == 'ISBN_13'), None)
             book_v = isbn_13
 
+        if book_k == "publisher":
+            gather_info.append("publisher: " + book_v)
+
         if book_k == "publishedDate":
-            gather_info.append(book_v)
+            gather_info.append("publishedDate: " + book_v)
 
         if book_k == "title":
             book_v = book_v.replace("The ", "")
