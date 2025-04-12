@@ -12,7 +12,7 @@ import cv2
 import os
 
 # Load the uploaded image
-image_path = "images-and-colors.png"
+image_path = "image.png"
 
 # Check if the image exists
 assert os.path.exists(image_path), "Image file not found!"
