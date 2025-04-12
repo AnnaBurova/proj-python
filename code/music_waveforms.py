@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 
 # Укажи здесь путь к папке с файлами
 folder_path = "path/to/your/folder"
+folder_path = "G:/DATA/Music"
 
 # Поддерживаемые форматы
 audio_extensions = ('.mp3', '.wav')
@@ -34,7 +35,7 @@ for filename in os.listdir(folder_path):
         plt.tight_layout()
 
         # Сохраняем рядом с оригинальным файлом
-        output_filename = os.path.splitext(filename)[0] + "_waveform.png"
+        output_filename = os.path.splitext(filename)[0] + " -- waveform.png"
         output_path = os.path.join(folder_path, output_filename)
         plt.savefig(output_path)
         plt.close()
