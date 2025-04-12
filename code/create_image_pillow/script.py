@@ -67,4 +67,6 @@ text = """
 """
 
 # Пример использования
-create_image(text)
+create_image(text, "output_1.png")
+create_image(text, "output_2.png")
+create_image(text, "output_3.png")
