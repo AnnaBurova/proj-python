@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Apr  6 15:07:53 2025
+Created on 6 Apr 2025
 
-@author: SeliCat
+@author: KoreAnna
 """
 import os
 import librosa
@@ -10,8 +10,7 @@ import librosa.display
 import matplotlib.pyplot as plt
 
 # Укажи здесь путь к папке с файлами
-folder_path = "path/to/your/folder"
-folder_path = "G:/DATA/Music"
+folder_path = "C:/Data/"
 
 # Поддерживаемые форматы
 audio_extensions = ('.mp3', '.wav')
