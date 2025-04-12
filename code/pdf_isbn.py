@@ -14,11 +14,13 @@ import sys
 line_fatty = "================================================================================"
 line_slimm = "--------------------------------------------------------------------------------"
 folder = "C:/Data/"
+
 prefix = ""
 first_pages = 25
 last_pages = 0
 all_pages = False
 self_controle = False
+self_controle = True
 name_start = "_"
 name_end = ".pdf"
 gather_info = []
